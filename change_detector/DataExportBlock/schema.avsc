@@ -1,0 +1,10 @@
+{"namespace": "export.avro",
+ "type": "record",
+ "name": "Point",
+ "fields": [
+     {"name": "x", "type": "double"},
+     {"name": "y",  "type": "double"},
+     {"name": "old_class", "type": "string"},
+     {"name": "new_class", "type": "string"}
+ ]
+}

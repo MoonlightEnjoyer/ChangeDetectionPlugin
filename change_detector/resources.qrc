@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/plugins/change_detector" >
+        <file>icon.png</file>
+    </qresource>
+</RCC>

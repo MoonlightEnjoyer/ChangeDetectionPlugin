@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>TestPluginDialogBase</class>
+ <widget class="QDialog" name="TestPluginDialogBase">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1080</width>
+    <height>560</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Test Plugin</string>
+  </property>
+  <widget class="QLabel" name="map_label">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>20</y>
+     <width>600</width>
+     <height>492</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QLabel" name="info_label">
+   <property name="geometry">
+    <rect>
+     <x>730</x>
+     <y>70</y>
+     <width>461</width>
+     <height>81</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QProgressBar" name="progressBar">
+   <property name="geometry">
+    <rect>
+     <x>760</x>
+     <y>20</y>
+     <width>211</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="value">
+    <number>0</number>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="downloadButton">
+   <property name="geometry">
+    <rect>
+     <x>780</x>
+     <y>420</y>
+     <width>131</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Загрузить</string>
+   </property>
+  </widget>
+  <widget class="QDateEdit" name="start_date">
+   <property name="geometry">
+    <rect>
+     <x>750</x>
+     <y>250</y>
+     <width>110</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="dateTime">
+    <datetime>
+     <hour>0</hour>
+     <minute>0</minute>
+     <second>0</second>
+     <year>2019</year>
+     <month>1</month>
+     <day>1</day>
+    </datetime>
+   </property>
+   <property name="maximumDate">
+    <date>
+     <year>2023</year>
+     <month>5</month>
+     <day>1</day>
+    </date>
+   </property>
+   <property name="minimumDate">
+    <date>
+     <year>2019</year>
+     <month>1</month>
+     <day>1</day>
+    </date>
+   </property>
+  </widget>
+  <widget class="QDateEdit" name="completion_date">
+   <property name="geometry">
+    <rect>
+     <x>910</x>
+     <y>250</y>
+     <width>110</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="maximumDate">
+    <date>
+     <year>2023</year>
+     <month>5</month>
+     <day>1</day>
+    </date>
+   </property>
+   <property name="minimumDate">
+    <date>
+     <year>2019</year>
+     <month>1</month>
+     <day>1</day>
+    </date>
+   </property>
+  </widget>
+  <widget class="QDoubleSpinBox" name="clouds_cover_selector">
+   <property name="geometry">
+    <rect>
+     <x>750</x>
+     <y>190</y>
+     <width>62</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="maximum">
+    <double>100.000000000000000</double>
+   </property>
+   <property name="value">
+    <double>100.000000000000000</double>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

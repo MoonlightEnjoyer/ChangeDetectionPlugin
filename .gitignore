@@ -1,0 +1,10 @@
+**/products
+*.jpg
+*.jp2
+*.zip
+*.png
+*.torch
+*.kml
+*.json
+*.avro
+*.orc

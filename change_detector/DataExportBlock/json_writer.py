@@ -7,9 +7,7 @@ class JsonWriter(DataWriter):
     def write_file(self, coordinates,  mask_path1, mask_path2, destination, progress_bar):
         mask1 = cv2.imread(mask_path1, cv2.IMREAD_UNCHANGED)
         mask2 = cv2.imread(mask_path2, cv2.IMREAD_UNCHANGED)
-
         data = {}
-
         counter = 0
         length = len(coordinates)
 

@@ -12,11 +12,8 @@ import os.path
 class ChangeDetectionPlugin:
 
     def __init__(self, iface):
-        # Save reference to the QGIS interface
         self.iface = iface
-        # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
-        # initialize locale
         locale = QSettings().value('locale/userLocale')[0:2]
         locale_path = os.path.join(
             self.plugin_dir,
@@ -28,17 +25,11 @@ class ChangeDetectionPlugin:
             self.translator.load(locale_path)
             QCoreApplication.installTranslator(self.translator)
 
-        # Declare instance attributes
         self.actions = []
         self.menu = self.tr(u'&Test Plugin')
-
-        # Check if plugin was started the first time in current QGIS session
-        # Must be set in initGui() to survive plugin reloads
         self.first_start = None
 
-    # noinspection PyMethodMayBeStatic
     def tr(self, message):
-        # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
         return QCoreApplication.translate('TestPlugin', message)
 
     def add_action(
@@ -53,7 +44,6 @@ class ChangeDetectionPlugin:
         whats_this=None,
         parent=None):
 
-
         icon = QIcon(icon_path)
         action = QAction(icon, text, parent)
         action.triggered.connect(callback)
@@ -66,7 +56,6 @@ class ChangeDetectionPlugin:
             action.setWhatsThis(whats_this)
 
         if add_to_toolbar:
-            # Adds plugin icon to Plugins toolbar
             self.iface.addToolBarIcon(action)
 
         if add_to_menu:
@@ -79,13 +68,12 @@ class ChangeDetectionPlugin:
         return action
 
     def initGui(self):
-        icon_path = ':/plugins/change_detector/icon.png'
+        icon_path = fr'{os.path.dirname(os.path.dirname(os.path.abspath(__file__)))}\icon.png'
         self.add_action(
             icon_path,
             text=self.tr(u'Compare images'),
             callback=self.run,
             parent=self.iface.mainWindow())
-
 
         self.first_start = True
 
@@ -97,14 +85,9 @@ class ChangeDetectionPlugin:
             self.iface.removeToolBarIcon(action)
 
     def run(self):
-        # Create the dialog with elements (after translation) and keep reference
-        # Only create GUI ONCE in callback, so that it will only load when the plugin is started
         if self.first_start == True:
             self.first_start = False
             self.dlg = ChangeDetectionPluginDialog()
-            # self.dlg.apply_coords.clicked.connect(self.download_thread)
 
-        # show the dialog
         self.dlg.show()
-        # Run the dialog event loop
         result = self.dlg.exec_()

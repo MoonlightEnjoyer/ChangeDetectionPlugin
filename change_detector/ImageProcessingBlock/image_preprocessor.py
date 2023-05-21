@@ -4,7 +4,6 @@ import cv2
 class ImagePreprocessor():
     def remove_clouds(self, images_path):
         images = []
-
         for image in os.listdir(images_path):
             images.append(images_path + image)
         

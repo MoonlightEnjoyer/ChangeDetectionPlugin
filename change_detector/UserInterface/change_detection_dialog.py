@@ -29,10 +29,11 @@ class ChangeDetectionPluginDialog(QtWidgets.QDialog, MapDialogBase, FORM_CLASS):
         self.setupUi(self)
         self.loadMap()
         self.setMouseTracking(True)
-        self.results_viewer_button.clicked.connect(self.display_comparison_data)
+        self.progress_bar.setVisible(False)
+        self.results_viewer_button.clicked.connect(self.open_results_viewer_dialog)
         self.download_button.clicked.connect(self.open_product_download_dialog)
         self.train_net_button.clicked.connect(self.open_train_dialog)
-        self.apply_coords.clicked.connect(self.download_images)
+        self.apply_coords.clicked.connect(self.comparison_pipeline)
         self.dialogs = list() 
 
     def open_train_dialog(self):
@@ -40,28 +41,22 @@ class ChangeDetectionPluginDialog(QtWidgets.QDialog, MapDialogBase, FORM_CLASS):
         self.dialogs.append(dialog)
         dialog.show()
 
-    def display_comparison_data(self):
-
-        api = ApiRequests('artiom.labietskii@gmail.com', 'Eben_Lord_2001')
+    def open_results_viewer_dialog(self):
+        email, password = self.get_user_data()
+        api = ApiRequests(email, password)
         api.token_request()
 
-        products = api.images_data_request(self.latitude, self.longitude, 2022)['features']
+        products_data = api.images_data_request(self.latitude, self.longitude, 2022)['features']
 
-        products_data = self.get_products_data(products)
+        products = self.get_products_data(products_data)
 
-        if len(products_data) != 0:
-            dialog = ResultsViewerDialog(products_data)
-            self.dialogs.append(dialog)
-            dialog.show()
+        if len(products) == 0:
             return
 
-        msg = QMessageBox()
-        msg.setIcon(QMessageBox.Warning)
-        msg.setText("Warning")
-        msg.setWindowTitle("Warning MessageBox")
-        msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
-        
-        retval = msg.exec_()
+        for product in products:
+            dialog = ResultsViewerDialog(product)
+            self.dialogs.append(dialog)
+            dialog.show()
 
     def open_product_download_dialog(self):
         dialog = ProductDownloadDialog()
@@ -72,36 +67,39 @@ class ChangeDetectionPluginDialog(QtWidgets.QDialog, MapDialogBase, FORM_CLASS):
         products = []
         for raw_product in raw_products:
             product = Product(raw_product)
-            if not product in products:
+            if not any((p.relative_orbit==product.relative_orbit and p.tile_id==product.tile_id and p.date==product.date) for p in products):
                 products.append(product)
         return products
     
-    def download_images(self):
-        thread = Thread(target=self.download_thread)
+    def comparison_pipeline(self):
+        thread = Thread(target=self.comparison_pipeline_thread)
         thread.start()
 
-    def download_thread(self):
+    def comparison_pipeline_thread(self):
         self.apply_coords.setEnabled(False)
         self.start_year.setEnabled(False)
         self.completion_year.setEnabled(False)
+        self.cloud_cover.setEnabled(False)
 
         download_directory = "D:/Study shit/Diploma/sentinel_products/"
         
         if not path.isdir(download_directory):
             os.mkdir(download_directory)
         
-        api = ApiRequests('artiom.labietskii@gmail.com', 'Eben_Lord_2001')
+        email, password = self.get_user_data()
+        api = ApiRequests(email, password)
         api.token_request()
         
         image_selector = ImageSelector()
 
-        products_to_download = image_selector.select_products(self.latitude, self.longitude, int(self.start_year.currentText()), int(self.completion_year.currentText()), api)
+        products_to_download = image_selector.select_products(self.latitude, self.longitude, int(self.start_year.currentText()), int(self.completion_year.currentText()), self.cloud_cover.value(), api)
         
         progress = 0
         products_number = len(products_to_download)
 
         downloaded_images = []
 
+        self.progress_bar.setVisible(True)
         self.info_label.setText("Выполняется загрузка продуктов. Загружено продуктов: %d из %d" % (progress, products_number))
 
         downloader = ProductsDownloader(download_directory)
@@ -137,6 +135,8 @@ class ChangeDetectionPluginDialog(QtWidgets.QDialog, MapDialogBase, FORM_CLASS):
             progress += 1
             self.info_label.setText("Выполняется построение карты изменений. Карт построено: %d из %d" % (progress, changemaps_number))
 
+        self.progress_bar.setVisible(False)
         self.apply_coords.setEnabled(True)
         self.start_year.setEnabled(True)
         self.completion_year.setEnabled(True)
+        self.cloud_cover.setEnabled(True)

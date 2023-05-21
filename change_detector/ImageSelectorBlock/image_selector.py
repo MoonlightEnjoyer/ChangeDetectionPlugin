@@ -10,18 +10,15 @@ from multipledispatch import dispatch
 
 class ImageSelector():
     def request_images_data(self, product_info_early, product_info_late, api):
-        products_early = api.images_data_request(product_info_early.coordinates.latitude, product_info_early.coordinates.longitude, product_info_early.year)['features']
-        products_late = api.images_data_request(product_info_late.coordinates.latitude, product_info_late.coordinates.longitude, product_info_late.year)['features']
-
+        products_early = api.images_data_request(product_info_early.coordinates.latitude, product_info_early.coordinates.longitude, product_info_early.year, product_info_early.max_cloud_cover)['features']
+        products_late = api.images_data_request(product_info_late.coordinates.latitude, product_info_late.coordinates.longitude, product_info_late.year, product_info_late.max_cloud_cover)['features']
         return (products_early, products_late)
 
-    @dispatch(float, float, int, int, ApiRequests)
-    def select_products(self, latitude, longitude, start_year, completion_year, api):
-        product_info_early = ProductInfo(Coordinates(latitude, longitude), start_year)
-        product_info_late = ProductInfo(Coordinates(latitude, longitude), completion_year)
-
+    @dispatch(float, float, int, int, float, ApiRequests)
+    def select_products(self, latitude, longitude, start_year, completion_year, max_cloud_cover, api):
+        product_info_early = ProductInfo(Coordinates(latitude, longitude), start_year, max_cloud_cover)
+        product_info_late = ProductInfo(Coordinates(latitude, longitude), completion_year, max_cloud_cover)
         products_early, products_late = self.request_images_data(product_info_early, product_info_late, api)
-
         return self.select_products(products_early, products_late)
 
     @dispatch(list, list)

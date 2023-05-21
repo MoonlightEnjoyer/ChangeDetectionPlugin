@@ -45,11 +45,11 @@ class ApiRequests():
         self.access_token = json.loads(response.content)['access_token']
         self.refresh_token = json.loads(response.content)['refresh_token']
 
-    @dispatch(float, float, int)
-    def images_data_request(self, lat, lon, year):
+    @dispatch(float, float, int, max_cloud_cover = float)
+    def images_data_request(self, lat, lon, year, max_cloud_cover = 100.0):
         url = 'https://catalogue.dataspace.copernicus.eu/resto/api/collections/Sentinel2/search.json?'
         params = {
-            'cloudCover' : '[0,100]',
+            'cloudCover' : f'[0,{max_cloud_cover}]',
             'startDate' : str(year) + '-06-10',
             'completionDate' : str(year) + '-06-30',
             'productType' : 'S2MSI2A',

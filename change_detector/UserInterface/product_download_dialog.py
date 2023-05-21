@@ -25,6 +25,7 @@ class ProductDownloadDialog(QtWidgets.QDialog, MapDialogBase, FORM_CLASS):
         self.setMouseTracking(True)
         self.downloadButton.clicked.connect(self.download_products)
         self.completion_date.setMaximumDate(QDate(date.today().year, date.today().month, date.today().day))
+        self.start_date.setMaximumDate(QDate(date.today().year, date.today().month, date.today().day))
 
     def select_download_directory(self):
         return str(QFileDialog.getExistingDirectory(self, "Select Directory"))
@@ -39,17 +40,15 @@ class ProductDownloadDialog(QtWidgets.QDialog, MapDialogBase, FORM_CLASS):
         self.start_date.setEnabled(False)
         self.completion_date.setEnabled(False)
         
-        api = ApiRequests('artiom.labietskii@gmail.com', 'Eben_Lord_2001')
+        email, password = self.get_user_data()
+        api = ApiRequests(email, password)
         api.token_request()
-
         downloader = ProductsDownloader(self.select_download_directory() + "/")
-
         products = api.images_data_request(self.latitude, self.longitude, f'{self.start_date.date().year()}-{self.start_date.date().month():02d}-{self.start_date.date().day():02d}', f'{self.completion_date.date().year()}-{self.completion_date.date().month():02d}-{self.completion_date.date().day():02d}', self.clouds_cover_selector.value())['features']
-
         progress = 0
         products_number = len(products)
 
-        self.findChild(QLabel,"info_label").setText("Количество продуктов, которые должны быть загружены: %d" % products_number)
+        self.info_label.setText("Количество продуктов, которые должны быть загружены: %d" % products_number)
 
         for raw_product in products:
             product = Product(raw_product)

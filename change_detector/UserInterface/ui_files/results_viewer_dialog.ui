@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1108</width>
-    <height>594</height>
+    <height>669</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,10 +16,10 @@
   <widget class="QLabel" name="image_label">
    <property name="geometry">
     <rect>
-     <x>100</x>
-     <y>40</y>
-     <width>600</width>
-     <height>492</height>
+     <x>10</x>
+     <y>10</y>
+     <width>551</width>
+     <height>551</height>
     </rect>
    </property>
    <property name="text">
@@ -126,10 +126,10 @@
   <widget class="QScrollArea" name="scroll_area">
    <property name="geometry">
     <rect>
-     <x>0</x>
+     <x>10</x>
      <y>10</y>
-     <width>771</width>
-     <height>581</height>
+     <width>551</width>
+     <height>551</height>
     </rect>
    </property>
    <property name="widgetResizable">
@@ -143,8 +143,8 @@
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>769</width>
-      <height>579</height>
+      <width>549</width>
+      <height>549</height>
      </rect>
     </property>
    </widget>
@@ -159,7 +159,7 @@
     </rect>
    </property>
    <property name="minimum">
-    <number>1</number>
+    <number>5</number>
    </property>
    <property name="maximum">
     <number>200</number>

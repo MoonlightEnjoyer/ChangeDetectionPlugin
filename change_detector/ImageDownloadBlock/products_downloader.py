@@ -12,10 +12,8 @@ class ProductsDownloader():
     def download_product(self, product, api):
         if not path.isdir(self.download_directory + product.tile_id):
             os.mkdir(self.download_directory + product.tile_id)
-        
         if not path.isdir(self.download_directory + product.tile_id + "/" + product.relative_orbit):
             os.mkdir(self.download_directory + product.tile_id + "/" + product.relative_orbit)
-
         if not path.isdir(self.download_directory + product.tile_id + "/" + product.relative_orbit + "/" + product.date):
             os.mkdir(self.download_directory + product.tile_id + "/" + product.relative_orbit + "/" + product.date)
 
@@ -26,16 +24,12 @@ class ProductsDownloader():
                 r.raise_for_status()
                 with open(local_filename, 'wb') as f:
                     for chunk in r.iter_content(chunk_size=8192): 
-                        f.write(chunk)
-                        
+                        f.write(chunk) 
         except requests.HTTPError as err:
             if err.response.status_code == 401:
-                
                 api.regenerate_token_request()
-
                 if os.path.isfile(local_filename):
                     os.remove(local_filename)
-
                 with api.download_request(product) as r:
                     with open(local_filename, 'wb') as f:
                         for chunk in r.iter_content(chunk_size=8192): 

@@ -37,7 +37,6 @@ class DataPreparation:
         del ndvi
         gc.collect()
 
-
         water_mask = np.power(water_mask, 0, where=water_mask!=0)
         buildings_mask = np.power(buildings_mask, 0, where=buildings_mask!=0)
         farmland_mask = np.power(farmland_mask, 0, where=farmland_mask!=0)

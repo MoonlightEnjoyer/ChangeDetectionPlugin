@@ -1,8 +1,8 @@
 import cv2
-import numpy as np
 import avro.schema
-from avro.datafile import DataFileReader, DataFileWriter
-from avro.io import DatumReader, DatumWriter
+from avro.datafile import DataFileWriter
+from avro.io import DatumWriter
+import os
 
 from .data_writer import DataWriter
 
@@ -11,13 +11,14 @@ class AvroWriter(DataWriter):
     def write_file(self, coordinates, mask_path1, mask_path2, destination, progress_bar):
         mask1 = cv2.imread(mask_path1, cv2.IMREAD_UNCHANGED)
         mask2 = cv2.imread(mask_path2, cv2.IMREAD_UNCHANGED)
+        plugin_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
         data = {}
 
         counter = 0
         length = len(coordinates)
 
-        with open("C:\\Users\\Artem\\AppData\\Roaming\\QGIS\\QGIS3\\profiles\\default\\python\\plugins\\test_plugin\\DataExportBlock\\schema.avsc", "rb") as schema_file:
+        with open(fr"{plugin_dir}\DataExportBlock\schema.avsc", "rb") as schema_file:
              schema = avro.schema.parse(schema_file.read())
 
         writer = DataFileWriter(open(destination, "wb"), DatumWriter(), schema)

@@ -14,8 +14,9 @@ FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'ui_files/results_viewer_dialog.ui'))
 
 class ResultsViewerDialog(QtWidgets.QDialog, FORM_CLASS):
-    def __init__(self, product,  parent=None):
-        self.product = product
+    def __init__(self, product_old, product_new,  parent=None):
+        self.product_old = product_old
+        self.product_new = product_new
         super(ResultsViewerDialog, self).__init__(parent)
 
         self.setupUi(self)
@@ -35,13 +36,14 @@ class ResultsViewerDialog(QtWidgets.QDialog, FORM_CLASS):
         self.scroll_area.setWidget(self.image_label)
         self.old_image = None
         self.new_image = None
+        self.text_scroll_area.setWidget(self.info_label)
 
         self.load_image()
 
     def load_image(self):
         self.image_label.setVisible(True)
         self.scroll_area.setVisible(True)
-        image_path = "D:/Study shit/Diploma/sentinel_products/" + self.product.tile_id + '/' + self.product.relative_orbit + '/' + self.product.date + '/'
+        image_path = "D:/Study shit/Diploma/sentinel_products/" + self.product_new.tile_id + '/' + self.product_new.relative_orbit + '/' + str(self.product_new.date) + '/'
         if self.image_type.currentText() == 'Карта изменений':
             image_path += 'changemap.png'
         if self.image_type.currentText() == 'Сегментированное изображение':
@@ -57,8 +59,8 @@ class ResultsViewerDialog(QtWidgets.QDialog, FORM_CLASS):
         self.pixmap = QPixmap(self.temp_path)
         self.image_label.setPixmap(self.pixmap)
 
-        self.old_image = cv2.imread(fr'D:\Study shit\Diploma\sentinel_products\T35UNV\R136\2020\segmentation_result.png', cv2.IMREAD_UNCHANGED)
-        self.new_image = cv2.imread(fr'D:\Study shit\Diploma\sentinel_products\T35UNV\R136\2022\segmentation_result.png', cv2.IMREAD_UNCHANGED)
+        self.old_image = cv2.imread(fr'D:\Study shit\Diploma\sentinel_products\{self.product_old.tile_id}\{self.product_old.relative_orbit}\{self.product_old.date}\segmentation_result.png', cv2.IMREAD_UNCHANGED)
+        self.new_image = cv2.imread(fr'D:\Study shit\Diploma\sentinel_products\{self.product_new.tile_id}\{self.product_new.relative_orbit}\{self.product_new.date}\segmentation_result.png', cv2.IMREAD_UNCHANGED)
         self.old_image = cv2.resize(self.old_image, (self.size, self.size), interpolation = cv2.INTER_AREA)
         self.new_image = cv2.resize(self.new_image, (self.size, self.size), interpolation = cv2.INTER_AREA)
 

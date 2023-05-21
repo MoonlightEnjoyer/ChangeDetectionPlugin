@@ -3,6 +3,7 @@ import numpy as np
 import torchvision.models.segmentation
 import torch
 import torchvision.transforms as tf
+import os
 from .image_reshaper import ImageReshaper
 
 class Segmentation:
@@ -28,17 +29,17 @@ class Segmentation:
         image = cv2.merge((b, g, r))
         return image
 
-    def perform_segmentation(self, imagePath, destination, progressBar):
-        modelPath = "C:/Users/Artem/AppData/Roaming/QGIS/QGIS3/profiles/default/python/plugins/change_detector/model/gpu/working_model.torch"  # Path to trained model
+    def perform_segmentation(self, imagePath, destination, progressBar, info_label):
+        modelPath = fr"{os.path.dirname(os.path.dirname(os.path.abspath(__file__)))}\model\working_model.torch"
         height=width=122
-        transformImg = tf.Compose([tf.ToPILImage(), tf.Resize((height, width)), tf.ToTensor(),tf.Normalize((0.485, 0.456, 0.406),(0.229, 0.224, 0.225))])  # tf.Resize((300,600)),tf.RandomRotation(145)])#
+        transformImg = tf.Compose([tf.ToPILImage(), tf.Resize((height, width)), tf.ToTensor(),tf.Normalize((0.485, 0.456, 0.406),(0.229, 0.224, 0.225))])
 
         device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
-        Net = torchvision.models.segmentation.deeplabv3_resnet50(weights=torchvision.models.segmentation.DeepLabV3_ResNet50_Weights.COCO_WITH_VOC_LABELS_V1)  # Load net
-        Net.classifier[4] = torch.nn.Conv2d(256, 7, kernel_size=(1, 1), stride=(1, 1))  # Change final layer to 7 classes
-        Net = Net.to(device)  # Set net to GPU or CPU
-        Net.load_state_dict(torch.load(modelPath)) # Load trained model
-        Net.eval() # Set to evaluation mode
+        Net = torchvision.models.segmentation.deeplabv3_resnet50(weights=torchvision.models.segmentation.DeepLabV3_ResNet50_Weights.COCO_WITH_VOC_LABELS_V1)
+        Net.classifier[4] = torch.nn.Conv2d(256, 7, kernel_size=(1, 1), stride=(1, 1))
+        Net = Net.to(device)
+        Net.load_state_dict(torch.load(modelPath))
+        Net.eval()
 
         image = np.zeros((10980, 10980), dtype=np.uint8)
         size = 122
@@ -74,7 +75,10 @@ class Segmentation:
             visualized_segmentation = self.visualize_segmentation_result(image)
             cv2.imwrite(destination + "visualized_segmentation.png", visualized_segmentation)
         except Exception as e:
-            log = open("C:/Users/Artem/Desktop/log/perform_segmentation.txt", 'w')
+            log = open(fr"{os.path.dirname(os.path.dirname(os.path.abspath(__file__)))}\log.txt", 'a')
+            log.write("\n-> inside perform_segmentation()")
             log.write('\nException occured\n')
             log.write(str(e))
+            log.write('\n#######################################\n')
             log.close()
+            info_label.setText("Произошла ошибка при выполнении сегментации")

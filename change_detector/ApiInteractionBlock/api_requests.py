@@ -24,9 +24,12 @@ class ApiRequests():
             'client_id' : 'cdse-public'
         }
 
-        response = requests.post(url, headers=headers, data=payload)
-        self.access_token = json.loads(response.content)['access_token']
-        self.refresh_token = json.loads(response.content)['refresh_token']
+        try:
+            response = requests.post(url, headers=headers, data=payload)
+            self.access_token = json.loads(response.content)['access_token']
+            self.refresh_token = json.loads(response.content)['refresh_token']
+        except Exception:
+            raise Exception("Не удалось выполнить загрузку продуктов.")
 
     def regenerate_token_request(self):
         headers = {
@@ -45,8 +48,8 @@ class ApiRequests():
         self.access_token = json.loads(response.content)['access_token']
         self.refresh_token = json.loads(response.content)['refresh_token']
 
-    @dispatch(float, float, int, max_cloud_cover = float)
-    def images_data_request(self, lat, lon, year, max_cloud_cover = 100.0):
+    @dispatch(float, float, int, float)
+    def images_data_request(self, lat, lon, year, max_cloud_cover):
         url = 'https://catalogue.dataspace.copernicus.eu/resto/api/collections/Sentinel2/search.json?'
         params = {
             'cloudCover' : f'[0,{max_cloud_cover}]',
@@ -65,7 +68,7 @@ class ApiRequests():
         response = requests.get(url)
 
         products_info = json.loads(response.content)
-        return products_info
+        return products_info['features']
     
     @dispatch(float, float, str, str, float, max_records = int)
     def images_data_request(self, lat, lon, date1, date2, max_cloud_cover, max_records = 20):
@@ -88,7 +91,7 @@ class ApiRequests():
         response = requests.get(url)
 
         products_info = json.loads(response.content)
-        return products_info
+        return products_info['features']
 
     def download_request(self, product):
         url = 'https://catalogue.dataspace.copernicus.eu/odata/v1/Products(' + product.id + ')/$value'

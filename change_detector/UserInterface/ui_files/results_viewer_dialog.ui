@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1108</width>
+    <width>1138</width>
     <height>669</height>
    </rect>
   </property>
@@ -34,7 +34,7 @@
     <rect>
      <x>780</x>
      <y>80</y>
-     <width>461</width>
+     <width>321</width>
      <height>81</height>
     </rect>
    </property>
@@ -180,6 +180,29 @@
    <property name="text">
     <string>Изменить размер</string>
    </property>
+  </widget>
+  <widget class="QScrollArea" name="text_scroll_area">
+   <property name="geometry">
+    <rect>
+     <x>780</x>
+     <y>80</y>
+     <width>321</width>
+     <height>81</height>
+    </rect>
+   </property>
+   <property name="widgetResizable">
+    <bool>true</bool>
+   </property>
+   <widget class="QWidget" name="scrollAreaWidgetContents_2">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>319</width>
+      <height>79</height>
+     </rect>
+    </property>
+   </widget>
   </widget>
  </widget>
  <resources/>

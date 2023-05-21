@@ -34,6 +34,7 @@ class ChangeDetectionPluginDialog(QtWidgets.QDialog, MapDialogBase, FORM_CLASS):
         self.download_button.clicked.connect(self.open_product_download_dialog)
         self.train_net_button.clicked.connect(self.open_train_dialog)
         self.apply_coords.clicked.connect(self.comparison_pipeline)
+        # self.text_scroll_area.setWidget(self.info_label)
         self.dialogs = list() 
 
     def open_train_dialog(self):
@@ -46,7 +47,7 @@ class ChangeDetectionPluginDialog(QtWidgets.QDialog, MapDialogBase, FORM_CLASS):
         api = ApiRequests(email, password)
         api.token_request()
 
-        products_data = api.images_data_request(self.latitude, self.longitude, 2022)['features']
+        products_data = api.images_data_request(self.latitude, self.longitude, 2022, 100.0)
 
         products = self.get_products_data(products_data)
 
@@ -54,7 +55,8 @@ class ChangeDetectionPluginDialog(QtWidgets.QDialog, MapDialogBase, FORM_CLASS):
             return
 
         for product in products:
-            dialog = ResultsViewerDialog(product)
+            product_old = Product(product.id, '2019', product.tile_id, product.relative_orbit, product.clouds)
+            dialog = ResultsViewerDialog(product_old, product)
             self.dialogs.append(dialog)
             dialog.show()
 
@@ -82,61 +84,70 @@ class ChangeDetectionPluginDialog(QtWidgets.QDialog, MapDialogBase, FORM_CLASS):
         self.cloud_cover.setEnabled(False)
 
         download_directory = "D:/Study shit/Diploma/sentinel_products/"
-        
-        if not path.isdir(download_directory):
-            os.mkdir(download_directory)
-        
-        email, password = self.get_user_data()
-        api = ApiRequests(email, password)
-        api.token_request()
-        
-        image_selector = ImageSelector()
 
-        products_to_download = image_selector.select_products(self.latitude, self.longitude, int(self.start_year.currentText()), int(self.completion_year.currentText()), self.cloud_cover.value(), api)
-        
-        progress = 0
-        products_number = len(products_to_download)
+        try:
+            if not path.isdir(download_directory):
+                os.mkdir(download_directory)
+            
+            email, password = self.get_user_data()
+            api = ApiRequests(email, password)
+            api.token_request()
+            
+            image_selector = ImageSelector()
 
-        downloaded_images = []
+            products_to_download = image_selector.select_products(self.latitude, self.longitude, int(self.start_year.currentText()), int(self.completion_year.currentText()), float(self.cloud_cover.value()), api)
+            
+            if products_to_download == None:
+                self.info_label.setText("Не удалось выполнить загрузку продуктов.")
+                return
 
-        self.progress_bar.setVisible(True)
-        self.info_label.setText("Выполняется загрузка продуктов. Загружено продуктов: %d из %d" % (progress, products_number))
+            progress = 0
+            products_number = len(products_to_download)
 
-        downloader = ProductsDownloader(download_directory)
+            downloaded_images = []
 
-        for product in products_to_download:
-            bands_path = downloader.download_product(product, api)
-            if downloaded_images.count(bands_path) == 0:
-                downloaded_images.append(bands_path)
-            progress += 1
+            self.progress_bar.setVisible(True)
             self.info_label.setText("Выполняется загрузка продуктов. Загружено продуктов: %d из %d" % (progress, products_number))
 
-        self.info_label.setText("Загрузка продуктов завершена")
-        seg = Segmentation()
-        image_src = []
-        progress = 0
-        images_number = len(downloaded_images)
-        self.info_label.setText("Выполняется сегментация изображений. Изображений сегментировано: %d из %d" % (progress, images_number))
-        for image in downloaded_images:            
-            image_preprocesor =  ImagePreprocessor()
-            image_preprocesor.remove_clouds(image)
-            image_src.append(image + "segmentation_result.png")
-            if not path.isdir(image):
-                os.mkdir(image)
-            seg.perform_segmentation(image + "clouds_removed.jp2", image, self.progress_bar)
-            progress += 1
-            self.info_label.setText("Выполняется сегментация изображений. Изображений сегментировано: %d из %d" % (progress, images_number))
-        change_builder = ChangemapBuilder()
-        progress = 0
-        changemaps_number = int(len(downloaded_images) / 2)
-        self.info_label.setText("Выполняется построение карты изменений. Карт построено: %d из %d" % (progress, changemaps_number))
-        for i in range(1, len(downloaded_images), 2):
-            change_builder.build_changemap(downloaded_images[i] + "clouds_removed.jp2", image_src[i - 1], image_src[i], downloaded_images[i])
-            progress += 1
-            self.info_label.setText("Выполняется построение карты изменений. Карт построено: %d из %d" % (progress, changemaps_number))
+            downloader = ProductsDownloader(download_directory)
+            for product in products_to_download:
+                bands_path = downloader.download_product(product, api)
+                if bands_path == None:
+                    self.info_label.setText("Не удалось выполнить загрузку продуктов.")
+                    return
+                if downloaded_images.count(bands_path) == 0:
+                    downloaded_images.append(bands_path)
+                progress += 1
+                self.info_label.setText("Выполняется загрузка продуктов. Загружено продуктов: %d из %d" % (progress, products_number))
 
-        self.progress_bar.setVisible(False)
-        self.apply_coords.setEnabled(True)
-        self.start_year.setEnabled(True)
-        self.completion_year.setEnabled(True)
-        self.cloud_cover.setEnabled(True)
+            self.info_label.setText("Загрузка продуктов завершена")
+            seg = Segmentation()
+            image_src = []
+            progress = 0
+            images_number = len(downloaded_images)
+            self.info_label.setText("Выполняется сегментация изображений. Изображений сегментировано: %d из %d" % (progress, images_number))
+            for image in downloaded_images:            
+                image_preprocesor =  ImagePreprocessor()
+                image_preprocesor.remove_clouds(image)
+                image_src.append(image + "segmentation_result.png")
+                if not path.isdir(image):
+                    os.mkdir(image)
+                seg.perform_segmentation(image + "clouds_removed.jp2", image, self.progress_bar, self.info_label)
+                progress += 1
+                self.info_label.setText("Выполняется сегментация изображений. Изображений сегментировано: %d из %d" % (progress, images_number))
+            change_builder = ChangemapBuilder()
+            progress = 0
+            changemaps_number = int(len(downloaded_images) / 2)
+            self.info_label.setText("Выполняется построение карты изменений. Карт построено: %d из %d" % (progress, changemaps_number))
+            for i in range(1, len(downloaded_images), 2):
+                change_builder.build_changemap(downloaded_images[i] + "clouds_removed.jp2", image_src[i - 1], image_src[i], downloaded_images[i], self.info_label)
+                progress += 1
+                self.info_label.setText("Выполняется построение карты изменений. Карт построено: %d из %d" % (progress, changemaps_number))
+        except Exception as e:
+            self.info_label.setText(str(e))
+        finally:
+            self.progress_bar.setVisible(False)
+            self.apply_coords.setEnabled(True)
+            self.start_year.setEnabled(True)
+            self.completion_year.setEnabled(True)
+            self.cloud_cover.setEnabled(True)

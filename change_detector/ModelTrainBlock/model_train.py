@@ -81,7 +81,6 @@ class ModelTrain:
             ann = torch.autograd.Variable(ann, requires_grad=False).to(device) # Load annotation
             Pred=Net(images)['out'] # make prediction
             Net.zero_grad()
-            
             Loss=criterion(Pred,ann.long()) # Calculate cross entropy loss
             Loss.backward() # Backpropogate loss
             optimizer.step() # Apply gradient descent change to weight
@@ -118,7 +117,6 @@ class ModelTrain:
 
             ev = np.absolute(ev)
             ev = np.power(ev, 0, out=ev, where=ev!=0)
-            
 
             err = 100 * np.sum(ev) / (122 * 122)
 

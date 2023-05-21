@@ -26,17 +26,22 @@ class ProductsDownloader():
                     for chunk in r.iter_content(chunk_size=8192): 
                         f.write(chunk) 
         except requests.HTTPError as err:
-            if err.response.status_code == 401:
-                api.regenerate_token_request()
-                if os.path.isfile(local_filename):
-                    os.remove(local_filename)
-                with api.download_request(product) as r:
-                    with open(local_filename, 'wb') as f:
-                        for chunk in r.iter_content(chunk_size=8192): 
-                            f.write(chunk)
-
-        except Exception as e:
-            return ""
+                try:
+                    if err.response.status_code == 401:
+                        api.regenerate_token_request()
+                        if os.path.isfile(local_filename):
+                            os.remove(local_filename)
+                        with api.download_request(product) as r:
+                            r.raise_for_status()
+                            with open(local_filename, 'wb') as f:
+                                for chunk in r.iter_content(chunk_size=8192): 
+                                    f.write(chunk)
+                    else:
+                        return None
+                except Exception:
+                     return None
+        except Exception:
+            return None
         
         with ZipFile(local_filename, 'r') as zObject:
                     zObject.extractall(path=self.download_directory + product.tile_id + "/" + product.relative_orbit + "/" + product.date + "/")
@@ -73,20 +78,20 @@ class ProductsDownloader():
                         f.write(chunk)
                         
         except requests.HTTPError as err:
-            if err.response.status_code == 401:
-                
-                api.regenerate_token_request()
+                if err.response.status_code == 401:
+                    api.regenerate_token_request()
+                    if os.path.isfile(local_filename):
+                        os.remove(local_filename)
+                    with api.download_request(product) as r:
+                        r.raise_for_status()
+                        with open(local_filename, 'wb') as f:
+                            for chunk in r.iter_content(chunk_size=8192): 
+                                f.write(chunk)
+                else:
+                    raise Exception("Не удалось выполнить загрузку продуктов.")
 
-                if os.path.isfile(local_filename):
-                    os.remove(local_filename)
-
-                with api.download_request(product) as r:
-                    with open(local_filename, 'wb') as f:
-                        for chunk in r.iter_content(chunk_size=8192): 
-                            f.write(chunk)
-
-        except Exception as e:
-            return ""
+        except Exception:
+            raise Exception("Не удалось выполнить загрузку продуктов.")
         
         with ZipFile(local_filename, 'r') as zObject:
                     zObject.extractall(path=self.download_directory)
@@ -95,29 +100,27 @@ class ProductsDownloader():
 
     def download_product_train(self, product, api):
         local_filename = self.download_directory + product.id + ".zip"
-        
         try:
             with api.download_request(product) as r:
                 r.raise_for_status()
                 with open(local_filename, 'wb') as f:
                     for chunk in r.iter_content(chunk_size=8192): 
-                        f.write(chunk)
-                        
+                        f.write(chunk)  
         except requests.HTTPError as err:
-            if err.response.status_code == 401:
-                
-                api.regenerate_token_request()
+                if err.response.status_code == 401:
+                    api.regenerate_token_request()
+                    if os.path.isfile(local_filename):
+                        os.remove(local_filename)
+                    with api.download_request(product) as r:
+                        r.raise_for_status()
+                        with open(local_filename, 'wb') as f:
+                            for chunk in r.iter_content(chunk_size=8192): 
+                                f.write(chunk)
+                else:
+                    raise Exception("Не удалось выполнить загрузку продуктов.")
 
-                if os.path.isfile(local_filename):
-                    os.remove(local_filename)
-
-                with api.download_request(product) as r:
-                    with open(local_filename, 'wb') as f:
-                        for chunk in r.iter_content(chunk_size=8192): 
-                            f.write(chunk)
-
-        except Exception as e:
-            return ""
+        except Exception:
+            raise Exception("Не удалось выполнить загрузку продуктов.")
         
         with ZipFile(local_filename, 'r') as zObject:
                     zObject.extractall(path=self.download_directory)

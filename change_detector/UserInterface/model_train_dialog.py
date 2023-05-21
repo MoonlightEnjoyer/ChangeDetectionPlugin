@@ -26,6 +26,7 @@ class ModelTrainDialog(QtWidgets.QDialog, MapDialogBase, FORM_CLASS):
         self.setMouseTracking(True)
         self.downloadButton.clicked.connect(self.train_pipeline)
         self.completion_date.setMaximumDate(QDate(date.today().year, date.today().month, date.today().day))
+        self.text_scroll_area.setWidget(self.info_label)
 
     def select_download_directory(self):
         return str(QFileDialog.getExistingDirectory(self, "Select Directory"))

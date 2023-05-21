@@ -12,9 +12,7 @@ class AvroWriter(DataWriter):
         mask1 = cv2.imread(mask_path1, cv2.IMREAD_UNCHANGED)
         mask2 = cv2.imread(mask_path2, cv2.IMREAD_UNCHANGED)
         plugin_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
         data = {}
-
         counter = 0
         length = len(coordinates)
 

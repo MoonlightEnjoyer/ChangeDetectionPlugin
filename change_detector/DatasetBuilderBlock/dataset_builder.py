@@ -5,6 +5,7 @@ import sys
 SCRIPT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(SCRIPT_DIR)
 from SegmentationBlock.image_reshaper import ImageReshaper
+from DatasetBuilderBlock.data_preparation import DataPreparation
 
 class DatasetBuilder:
     def __init__(self, dataset_directory, masks_directory):
@@ -42,6 +43,10 @@ class DatasetBuilder:
             os.mkdir(f'{self.dataset_directory}dataset/test/semantic/{folder}/')
 
     def build_dataset(self):
+        data_preparation = DataPreparation()
+        data_preparation.mark_masks_color(fr"{SCRIPT_DIR}\bands\\", fr"{SCRIPT_DIR}\bands\\")
+
+
         self.build_dataset_structure()
         self.separate_image_dataset(f'{self.masks_directory}TCI.jp2', f'{self.dataset_directory}dataset/test/image/', f'{self.dataset_directory}dataset/train/image/', '.png')
         for folder in self.semantic_folders:

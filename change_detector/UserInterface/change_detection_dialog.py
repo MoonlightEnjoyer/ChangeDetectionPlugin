@@ -20,6 +20,7 @@ from ImageProcessingBlock.image_preprocessor import ImagePreprocessor
 import os.path
 from os import path
 from threading import Thread
+import json
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'ui_files/change_detection_dialog.ui'))
 
@@ -34,7 +35,7 @@ class ChangeDetectionPluginDialog(QtWidgets.QDialog, MapDialogBase, FORM_CLASS):
         self.download_button.clicked.connect(self.open_product_download_dialog)
         self.train_net_button.clicked.connect(self.open_train_dialog)
         self.apply_coords.clicked.connect(self.comparison_pipeline)
-        # self.text_scroll_area.setWidget(self.info_label)
+        self.text_scroll_area.setWidget(self.info_label)
         self.dialogs = list() 
 
     def open_train_dialog(self):
@@ -83,9 +84,11 @@ class ChangeDetectionPluginDialog(QtWidgets.QDialog, MapDialogBase, FORM_CLASS):
         self.completion_year.setEnabled(False)
         self.cloud_cover.setEnabled(False)
 
-        download_directory = "D:/Study shit/Diploma/sentinel_products/"
-
         try:
+
+            conf_download = json.load(open(fr"{SCRIPT_DIR}\configuration.txt"))['download_directory']
+            download_directory = conf_download
+
             if not path.isdir(download_directory):
                 os.mkdir(download_directory)
             
@@ -96,10 +99,6 @@ class ChangeDetectionPluginDialog(QtWidgets.QDialog, MapDialogBase, FORM_CLASS):
             image_selector = ImageSelector()
 
             products_to_download = image_selector.select_products(self.latitude, self.longitude, int(self.start_year.currentText()), int(self.completion_year.currentText()), float(self.cloud_cover.value()), api)
-            
-            if products_to_download == None:
-                self.info_label.setText("Не удалось выполнить загрузку продуктов.")
-                return
 
             progress = 0
             products_number = len(products_to_download)
@@ -112,9 +111,6 @@ class ChangeDetectionPluginDialog(QtWidgets.QDialog, MapDialogBase, FORM_CLASS):
             downloader = ProductsDownloader(download_directory)
             for product in products_to_download:
                 bands_path = downloader.download_product(product, api)
-                if bands_path == None:
-                    self.info_label.setText("Не удалось выполнить загрузку продуктов.")
-                    return
                 if downloaded_images.count(bands_path) == 0:
                     downloaded_images.append(bands_path)
                 progress += 1
@@ -140,7 +136,7 @@ class ChangeDetectionPluginDialog(QtWidgets.QDialog, MapDialogBase, FORM_CLASS):
             changemaps_number = int(len(downloaded_images) / 2)
             self.info_label.setText("Выполняется построение карты изменений. Карт построено: %d из %d" % (progress, changemaps_number))
             for i in range(1, len(downloaded_images), 2):
-                change_builder.build_changemap(downloaded_images[i] + "clouds_removed.jp2", image_src[i - 1], image_src[i], downloaded_images[i], self.info_label)
+                change_builder.build_changemap(downloaded_images[i] + "clouds_removed.jp2", image_src[i - 1], image_src[i], downloaded_images[i - 1], downloaded_images[i], self.info_label)
                 progress += 1
                 self.info_label.setText("Выполняется построение карты изменений. Карт построено: %d из %d" % (progress, changemaps_number))
         except Exception as e:

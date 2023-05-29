@@ -10,6 +10,7 @@ SCRIPT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(SCRIPT_DIR)
 from DataExportBlock.data_export import DataExport
 from ImageProcessingBlock.results_analyser import ResultsAnalyser
+import json
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'ui_files/results_viewer_dialog.ui'))
 
@@ -21,6 +22,7 @@ class ResultsViewerDialog(QtWidgets.QDialog, FORM_CLASS):
 
         self.setupUi(self)
         self.image_type.activated.connect(self.load_image)
+        self.year_combo_box.activated.connect(self.load_image)
         self.export_button.clicked.connect(self.export_data_thread)
         self.change_size_button.clicked.connect(self.change_size)
         self.setMouseTracking(True)
@@ -37,13 +39,15 @@ class ResultsViewerDialog(QtWidgets.QDialog, FORM_CLASS):
         self.old_image = None
         self.new_image = None
         self.text_scroll_area.setWidget(self.info_label)
+        self.year_combo_box.addItem(product_new.date)
+        self.year_combo_box.addItem(product_old.date)
 
         self.load_image()
 
     def load_image(self):
         self.image_label.setVisible(True)
         self.scroll_area.setVisible(True)
-        image_path = "D:/Study shit/Diploma/sentinel_products/" + self.product_new.tile_id + '/' + self.product_new.relative_orbit + '/' + str(self.product_new.date) + '/'
+        image_path = fr"D:\Study shit\Diploma\sentinel_products/" + self.product_new.tile_id + '/' + self.product_new.relative_orbit + '/' + self.year_combo_box.currentText() + '/'
         if self.image_type.currentText() == 'Карта изменений':
             image_path += 'changemap.png'
         if self.image_type.currentText() == 'Сегментированное изображение':
@@ -64,9 +68,6 @@ class ResultsViewerDialog(QtWidgets.QDialog, FORM_CLASS):
         self.old_image = cv2.resize(self.old_image, (self.size, self.size), interpolation = cv2.INTER_AREA)
         self.new_image = cv2.resize(self.new_image, (self.size, self.size), interpolation = cv2.INTER_AREA)
 
-        
-
-
     def change_size(self):
         thread = Thread(target=self.change_size_thread)
         thread.start()
@@ -79,8 +80,8 @@ class ResultsViewerDialog(QtWidgets.QDialog, FORM_CLASS):
         self.pixmap = QPixmap(self.temp_path)
         self.image_label.setPixmap(self.pixmap)
 
-        self.old_image = cv2.imread(fr'D:\Study shit\Diploma\sentinel_products\T35UNV\R136\2020\segmentation_result.png', cv2.IMREAD_UNCHANGED)
-        self.new_image = cv2.imread(fr'D:\Study shit\Diploma\sentinel_products\T35UNV\R136\2022\segmentation_result.png', cv2.IMREAD_UNCHANGED)
+        self.old_image = cv2.imread(fr'D:\Study shit\Diploma\sentinel_products\{self.product_old.tile_id}\{self.product_old.relative_orbit}\{self.product_old.date}\segmentation_result.png', cv2.IMREAD_UNCHANGED)
+        self.new_image = cv2.imread(fr'D:\Study shit\Diploma\sentinel_products\{self.product_new.tile_id}\{self.product_new.relative_orbit}\{self.product_new.date}\segmentation_result.png', cv2.IMREAD_UNCHANGED)
         self.old_image = cv2.resize(self.old_image, (self.size, self.size), interpolation = cv2.INTER_AREA)
         self.new_image = cv2.resize(self.new_image, (self.size, self.size), interpolation = cv2.INTER_AREA)
 
@@ -89,36 +90,41 @@ class ResultsViewerDialog(QtWidgets.QDialog, FORM_CLASS):
         thread.start()
 
     def export_data_thread(self):
+        download_dir = json.load(open(fr"{SCRIPT_DIR}\configuration.txt"))['download_directory'] + fr'{self.product_old.tile_id}\{self.product_old.relative_orbit}' + '\\'
         resultsAnalyzer = ResultsAnalyser()
-        coordinates = resultsAnalyzer.get_changed_areas_coords("D:\\Study shit\\Diploma\\sentinel_products\\T35UNV\\R136\\2022\\")
+        coordinates = resultsAnalyzer.get_changed_areas_coords(fr"{download_dir}\2022\\")
         dataExport = DataExport()
         self.progress_bar.setVisible(True)
+
+        seg_result_old = fr'D:\Study shit\Diploma\sentinel_products\{self.product_old.tile_id}\{self.product_old.relative_orbit}\{self.product_old.date}\segmentation_result.png'
+        seg_result_new = fr'D:\Study shit\Diploma\sentinel_products\{self.product_new.tile_id}\{self.product_new.relative_orbit}\{self.product_new.date}\segmentation_result.png'
+
         if self.data_format.currentText() == "JSON":
-            dataExport.export_json(coordinates, 'D:\\Study shit\\Diploma\\sentinel_products\\T35UNV\\R136\\2019\\segmentation_result.png', 'D:\\Study shit\\Diploma\\sentinel_products\\T35UNV\\R136\\2022\\segmentation_result.png', 'D:\\Study shit\\Diploma\\sentinel_products\\T35UNV\\R136\\2022\\exported_data.json', self.progress_bar)
+            dataExport.export_json(coordinates, seg_result_old, seg_result_new, fr'D:\Study shit\Diploma\sentinel_products\{self.product_new.tile_id}\{self.product_new.relative_orbit}\{self.product_new.date}\exported_data.json', self.progress_bar)
         if self.data_format.currentText() == "AVRO":
-            dataExport.export_avro(coordinates, 'D:\\Study shit\\Diploma\\sentinel_products\\T35UNV\\R136\\2019\\segmentation_result.png', 'D:\\Study shit\\Diploma\\sentinel_products\\T35UNV\\R136\\2022\\segmentation_result.png', 'D:\\Study shit\\Diploma\\sentinel_products\\T35UNV\\R136\\2022\\exported_data.avro', self.progress_bar)
+            dataExport.export_avro(coordinates, seg_result_old, seg_result_new, fr'D:\Study shit\Diploma\sentinel_products\{self.product_new.tile_id}\{self.product_new.relative_orbit}\{self.product_new.date}\exported_data.avro', self.progress_bar)
         if self.data_format.currentText() == "CSV":
-            dataExport.export_csv(coordinates, 'D:\\Study shit\\Diploma\\sentinel_products\\T35UNV\\R136\\2019\\segmentation_result.png', 'D:\\Study shit\\Diploma\\sentinel_products\\T35UNV\\R136\\2022\\segmentation_result.png', 'D:\\Study shit\\Diploma\\sentinel_products\\T35UNV\\R136\\2022\\exported_data.csv', self.progress_bar)
+            dataExport.export_csv(coordinates, seg_result_old, seg_result_new, fr'D:\Study shit\Diploma\sentinel_products\{self.product_new.tile_id}\{self.product_new.relative_orbit}\{self.product_new.date}\exported_data.csv', self.progress_bar)
         if self.data_format.currentText() == "POSTGRESQL":
-            dataExport.export_sql(coordinates, 'D:\\Study shit\\Diploma\\sentinel_products\\T35UNV\\R136\\2019\\segmentation_result.png', 'D:\\Study shit\\Diploma\\sentinel_products\\T35UNV\\R136\\2022\\segmentation_result.png', "dbname=%s user=%s password=%s host=%s port=%s" % ("postgres", "postgres", "lartem2001", "localhost", "5432"), self.progress_bar)
+            dataExport.export_sql(coordinates, seg_result_old, seg_result_new, "dbname=%s user=%s password=%s host=%s port=%s" % ("postgres", "postgres", "lartem2001", "localhost", "5432"), self.progress_bar)
 
         self.progress_bar.setVisible(False)
 
     def get_class_name(self, value):
         if value == 0:
-            return 'building'
+            return 'постройки'
         elif value == 1:
-            return 'water'
+            return 'вода'
         elif value == 2:
-            return 'farmland'
+            return 'поле'
         elif value == 3:
-            return 'forest'
+            return 'лес'
         elif value == 4:
-            return 'grass'
+            return 'поле'
         elif value == 5:
-            return 'clouds'
+            return 'облака'
         elif value == 6:
-            return 'ignore'
+            return 'пустая область'
 
     def mouseMoveEvent(self, event):
         x = event.x() - 10

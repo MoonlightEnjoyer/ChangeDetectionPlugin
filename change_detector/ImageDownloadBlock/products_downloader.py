@@ -26,20 +26,15 @@ class ProductsDownloader():
                     for chunk in r.iter_content(chunk_size=8192): 
                         f.write(chunk) 
         except requests.HTTPError as err:
-                try:
-                    if err.response.status_code == 401:
-                        api.regenerate_token_request()
-                        if os.path.isfile(local_filename):
-                            os.remove(local_filename)
-                        with api.download_request(product) as r:
-                            r.raise_for_status()
-                            with open(local_filename, 'wb') as f:
-                                for chunk in r.iter_content(chunk_size=8192): 
-                                    f.write(chunk)
-                    else:
-                        return None
-                except Exception:
-                     return None
+                if err.response.status_code == 401:
+                    api.regenerate_token_request()
+                    if os.path.isfile(local_filename):
+                        os.remove(local_filename)
+                    with api.download_request(product) as r:
+                        r.raise_for_status()
+                        with open(local_filename, 'wb') as f:
+                            for chunk in r.iter_content(chunk_size=8192): 
+                                f.write(chunk)
         except Exception:
             return None
         

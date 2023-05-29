@@ -24,12 +24,12 @@ class ApiRequests():
             'client_id' : 'cdse-public'
         }
 
-        try:
-            response = requests.post(url, headers=headers, data=payload)
-            self.access_token = json.loads(response.content)['access_token']
-            self.refresh_token = json.loads(response.content)['refresh_token']
-        except Exception:
-            raise Exception("Не удалось выполнить загрузку продуктов.")
+        # try:
+        response = requests.post(url, headers=headers, data=payload)
+        self.access_token = json.loads(response.content)['access_token']
+        self.refresh_token = json.loads(response.content)['refresh_token']
+        # except Exception:
+        #     raise Exception("Не удалось выполнить загрузку продуктов.")
 
     def regenerate_token_request(self):
         headers = {

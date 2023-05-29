@@ -6,8 +6,8 @@ import os
 
 class MapDialogBase():
     def __init__(self):
-        self.latitude = 0
-        self.longitude = 0
+        self.latitude = 0.0
+        self.longitude = 0.0
         self.marker_x = -1
         self.marker_y = -1
         self.work_directory = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

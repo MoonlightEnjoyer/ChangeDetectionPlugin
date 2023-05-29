@@ -42,7 +42,7 @@ class ModelTrain:
         if Ignore is not None:  AnnMap[Ignore == 1] = 6
         Img=self.transformImg(Img)
         AnnMap=self.transformAnn(AnnMap)
-        return Img,AnnMap
+        return Img, AnnMap
     
     def read_random_test_image(self): # First lets load random image and  the corresponding annotation
         idx=np.random.randint(0,len(self.test_images)) # Select random image

@@ -9,7 +9,6 @@ from threading import Thread
 import sys
 SCRIPT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(SCRIPT_DIR)
-from ImageDownloadBlock.product import Product
 from ImageDownloadBlock.products_downloader import ProductsDownloader
 from ApiInteractionBlock.api_requests import ApiRequests
 from UserInterface.map_dialog_base import MapDialogBase
@@ -45,7 +44,7 @@ class ProductDownloadDialog(QtWidgets.QDialog, MapDialogBase, FORM_CLASS):
         api = ApiRequests(email, password)
         api.token_request()
         downloader = ProductsDownloader(self.select_download_directory() + "/")
-        products = api.images_data_request(self.latitude, self.longitude, f'{self.start_date.date().year()}-{self.start_date.date().month():02d}-{self.start_date.date().day():02d}', f'{self.completion_date.date().year()}-{self.completion_date.date().month():02d}-{self.completion_date.date().day():02d}', self.clouds_cover_selector.value())['features']
+        products = api.images_data_request(self.latitude, self.longitude, f'{self.start_date.date().year()}-{self.start_date.date().month():02d}-{self.start_date.date().day():02d}', f'{self.completion_date.date().year()}-{self.completion_date.date().month():02d}-{self.completion_date.date().day():02d}', self.clouds_cover_selector.value())
         progress = 0
         products_number = len(products)
 

@@ -4,7 +4,6 @@ SCRIPT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(SCRIPT_DIR)
 from ImageDownloadBlock.product import Product
 from UserInterface.product_info import ProductInfo
-from UserInterface.coordinates import Coordinates
 from ApiInteractionBlock.api_requests import ApiRequests
 from multipledispatch import dispatch
 
@@ -16,12 +15,11 @@ class ImageSelector():
 
     @dispatch(float, float, int, int, float, ApiRequests)
     def select_products(self, latitude, longitude, start_year, completion_year, max_cloud_cover, api):
-        try:
-            product_info_early = ProductInfo(Coordinates(latitude, longitude), start_year, max_cloud_cover)
-            product_info_late = ProductInfo(Coordinates(latitude, longitude), completion_year, max_cloud_cover)
-            products_early, products_late = self.request_images_data(product_info_early, product_info_late, api)
-        except Exception:
-            return None
+
+        product_info_early = ProductInfo(latitude, longitude, start_year, max_cloud_cover)
+        product_info_late = ProductInfo(latitude, longitude, completion_year, max_cloud_cover)
+        products_early, products_late = self.request_images_data(product_info_early, product_info_late, api)
+
         return self.select_products(products_early, products_late)
 
     @dispatch(list, list)

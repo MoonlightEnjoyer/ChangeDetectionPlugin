@@ -46,7 +46,7 @@ def test_selected_products(selected_products):
 
 def test_calculate_coordinates_grodno():
     map_dialog_base = MapDialogBase()
-    latitude, longitude = map_dialog_base.get_coords(47, 255)
+    latitude, longitude = map_dialog_base.get_coords(47, 315)
 
     d = 0.1
 
@@ -54,7 +54,7 @@ def test_calculate_coordinates_grodno():
 
 def test_calculate_coordinates_gomel():
     map_dialog_base = MapDialogBase()
-    latitude, longitude = map_dialog_base.get_coords(493, 370)
+    latitude, longitude = map_dialog_base.get_coords(493, 430)
 
     d = 0.1
 

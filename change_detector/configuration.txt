@@ -1,1 +1,1 @@
-{"email":"artiom.labietskii@gmail.com","password":"Eben_Lord_2001"}
+{"email":"artiom.labietskii@gmail.com","password":"Eben_Lord_2001","download_directory":"D:/Study shit/Diploma/sentinel_products/"}

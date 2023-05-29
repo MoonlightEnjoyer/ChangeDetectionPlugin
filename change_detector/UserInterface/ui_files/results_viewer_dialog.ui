@@ -204,6 +204,16 @@
     </property>
    </widget>
   </widget>
+  <widget class="QComboBox" name="year_combo_box">
+   <property name="geometry">
+    <rect>
+     <x>810</x>
+     <y>360</y>
+     <width>69</width>
+     <height>22</height>
+    </rect>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>
